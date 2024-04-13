@@ -1,6 +1,8 @@
 from aiogram import Bot, Dispatcher
 import asyncio
-from aiogram.types import Message
+from aiogram.types import Message, ContentType
+from aiogram.filters import Command, CommandStart
+
 token = '6841654844:AAGSv106XBkftoXUKbj-A8-3u1g_kDTEA50'
 
 #создаём объект класса bot, и передаём ему токен
@@ -36,10 +38,11 @@ async def get_start(message: Message, bot: Bot):
 async def start():
     bot = Bot(token=token)
     dp = Dispatcher()
-    dp.message.register(get_start)
+    dp.message.register(get_start, Command(commands=['start', 'run']))
+    #dp.message.register(get_start, CommandStart)
     dp.startup.register(start_bot)
     dp.shutdown.register(stop_bot)
-
+    dp.message.register(get_photo)
     try:
         await dp.start_polling(bot)
     finally:
