@@ -2,6 +2,7 @@ from aiogram import Bot, Dispatcher
 import asyncio
 from aiogram.types import Message, ContentType
 from aiogram.filters import Command, CommandStart
+from aiogram import F
 
 token = '6841654844:AAGSv106XBkftoXUKbj-A8-3u1g_kDTEA50'
 
@@ -27,6 +28,7 @@ async def stop_bot(bot: Bot):
 async def get_photo(message: Message, bot: Bot):
     await message.answer(f'Отправлена фотография')
     file = await bot.get_file(message.photo[-1].file_id)
+    await bot.download_file(file.file_path, 'photo.jpg')
 
 
 
@@ -42,7 +44,7 @@ async def start():
     #dp.message.register(get_start, CommandStart)
     dp.startup.register(start_bot)
     dp.shutdown.register(stop_bot)
-    dp.message.register(get_photo)
+    dp.message.register(get_photo, F.photo)
     try:
         await dp.start_polling(bot)
     finally:
