@@ -3,7 +3,7 @@ import asyncio
 from aiogram.types import Message, ContentType
 from aiogram.filters import Command, CommandStart
 from aiogram import F
-
+import json
 token = '6841654844:AAGSv106XBkftoXUKbj-A8-3u1g_kDTEA50'
 
 #создаём объект класса bot, и передаём ему токен
@@ -37,6 +37,10 @@ async def get_start(message: Message, bot: Bot):
     await message.answer(f'Hello {message.from_user.first_name} 2')
     await message.reply(f'Hello {message.from_user.first_name} 3')
 
+async def get_hello(message: Message, bot: Bot):
+    await message.answer('def get_hello')
+    json_str = json.dumps(message.dict(), default=str)
+    print(json_str)
 async def start():
     bot = Bot(token=token)
     dp = Dispatcher()
@@ -45,6 +49,7 @@ async def start():
     dp.startup.register(start_bot)
     dp.shutdown.register(stop_bot)
     dp.message.register(get_photo, F.photo)
+    dp.message.register(get_hello, F.text == '@aiogram_trainig_bot Привет')
     try:
         await dp.start_polling(bot)
     finally:
