@@ -9,6 +9,8 @@ from aiogram.types import ReplyKeyboardMarkup, KeyboardButton, KeyboardButtonPol
 from aiogram.utils.keyboard import ReplyKeyboardBuilder
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 from aiogram.types import CallbackQuery
+from aiogram.utils.keyboard import InlineKeyboardBuilder
+from aiogram.filters.callback_data import CallbackData
 token = '6841654844:AAGSv106XBkftoXUKbj-A8-3u1g_kDTEA50'
 
 #создаём объект класса bot, и передаём ему токен
@@ -24,6 +26,14 @@ token = '6841654844:AAGSv106XBkftoXUKbj-A8-3u1g_kDTEA50'
 #выносим запуск пуллинга в асинхронную функцию
 
 #Функция обработки нажатия кнопки старт
+
+class MacInfo(CallbackData, prefix='mac'):
+    model: str
+    size: int
+    chip: str
+    year: int
+
+
 
 select_macbook = InlineKeyboardMarkup(inline_keyboard=[
     [
@@ -108,19 +118,39 @@ loc_tel_poll_keyboard = ReplyKeyboardMarkup(keyboard=[
 
 #Будем показвать эту клавиатуру при нажатии кнопки старт
 
+def get_inline_keyboard():
+    keyboard_builder = InlineKeyboardBuilder()
+    keyboard_builder.button(text = 'Mac air 13 m1 2020', callback_data=MacInfo(model='air', size = 13, chip='m1', year=2020))
+    keyboard_builder.button(text = 'Mac air 14 m1 2020', callback_data=MacInfo(model='air', size = 13, chip='m1', year=2020))
+    keyboard_builder.button(text = 'Mac air 15 m1 2020', callback_data=MacInfo(model='air', size = 13, chip='m1', year=2020))
+    keyboard_builder.button(text = 'Link', url='https://ya.ru')
+    keyboard_builder.button(text = 'Link', url='https://ya.ru')
 
-async def select_macbook1(call: CallbackQuery, bot: Bot):
-    model = call.data.split('_')[1]
-    size = call.data.split('_')[2]
-    chip = call.data.split('_')[3]
-    year = call.data.split('_')[4]
+    keyboard_builder.adjust(3)
+    return keyboard_builder.as_markup()
+# async def select_macbook1(call: CallbackQuery, bot: Bot):
+#     model = call.data.split('_')[1]
+#     size = call.data.split('_')[2]
+#     chip = call.data.split('_')[3]
+#     year = call.data.split('_')[4]
+#     answer = f'{call.message.from_user.first_name}, ты выбрал model={model}, size={size}, chip={chip}, year={year}'
+#     await call.message.answer(answer)
+#     await call.answer()
+
+async def select_macbook1(call: CallbackQuery, bot: Bot, callback_data: MacInfo):
+    model = callback_data.model
+    size = callback_data.size
+    chip = callback_data.chip
+    year = callback_data.year
     answer = f'{call.message.from_user.first_name}, ты выбрал model={model}, size={size}, chip={chip}, year={year}'
     await call.message.answer(answer)
     await call.answer()
 
+
+
 #функция для инлайн клавиатуры
 async def get_inline(message: Message, bot: Bot):
-    await message.answer(f'Привет, {message.from_user.first_name}. Показываю инлайн клавиатуру', reply_markup=select_macbook)
+    await message.answer(f'Привет, {message.from_user.first_name}. Показываю инлайн клавиатуру', reply_markup=get_inline_keyboard())
 
 def get_reply_keyboard():
     keyboard_builder = ReplyKeyboardBuilder()
@@ -176,7 +206,7 @@ async def start():
     #dp.message.register(get_start, CommandStart)
     dp.startup.register(start_bot)
     dp.shutdown.register(stop_bot)
-    dp.callback_query.register(select_macbook1)
+    dp.callback_query.register(select_macbook1, MacInfo.filter())
     dp.message.register(get_photo, F.photo)
     dp.message.register(get_hello, F.text == '@aiogram_trainig_bot Привет')
     dp.message.register(get_inline, Command(commands='inline'))
@@ -189,3 +219,4 @@ async def start():
 
 if __name__ == "__main__":
     asyncio.run(start())
+
